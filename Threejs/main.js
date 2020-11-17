@@ -9,6 +9,8 @@ THREE.Object3D.prototype.savePosition = function() {
     }
 }();
 
+
+
 THREE.Object3D.prototype.rotateAroundPoint = function() {
     return function (point, theta, axis, pointIsWorld = false) {
     // point: Vector3 -  center of rotation
@@ -34,7 +36,6 @@ THREE.Object3D.prototype.rotateAroundPoint = function() {
 
 }();
 
-
 // ThreeJS variables
 var camera, scene, renderer;
 // OrbitControls (camera)
@@ -42,7 +43,7 @@ var controls;
 // Optional (showFps)
 var stats;
 // Objects in Scene
-var sun, earth;
+var sun, earth, moon, light;
 // To be added 
 // var moon;   
 // Light in the scene 
@@ -61,11 +62,13 @@ function init() {
     camera.position.z = 3;
     camera.position.y = 20;
     camera.lookAt( 0, 0, -4);
-    
-    
 
     // Setting up scene
     scene = new THREE.Scene();
+
+    moon = createSphere(0.3, 20, 'texture/moon.jpg', 'Phong');
+    moon.position.z = -3;
+
     // Earth
     earth = createSphere(1, 20, 'texture/earth.jpg', 'Phong');
     earth.position.z = -12;
@@ -73,12 +76,17 @@ function init() {
     // Sun (Sphere + Light)
     sun = createSphere(1.25, 20, 'texture/sun.jpg');
     sun.position.z = -3;
+    sun.rotation.z = 1.2
     /* Complete: add light
     sunlight...;
     sun...
     */
 
-    sun.add(earth)
+    light = new THREE.PointLight( 0xffffff, 1.5);
+
+    earth.add(moon);
+    sun.add(light);
+    sun.add(earth);
     scene.add(sun);
 
     
@@ -113,6 +121,7 @@ function onDocumentKeyDown(event) {
     console.log(event.which);
 }
 
+
 function animate() {
     
     requestAnimationFrame( animate );
@@ -122,8 +131,16 @@ function animate() {
 
     stats.update();
     renderer.render( scene, camera );
-    earth.rotation.y+=0.02
+    //Rotacao da Terra
+    var pontoDeTranslacaoDaTerra = new THREE.Vector3(0, 0, 0);
+    var eixoDeTranslacaoTerra = new THREE.Vector3(1, 0, 0);
+    earth.rotateAroundPoint(pontoDeTranslacaoDaTerra, 0.002,eixoDeTranslacaoTerra,false);
+    earth.rotation.x+=1.35
     
+    //Rotacao da Lua
+    var pontoDeTranslacaoDaLua = new THREE.Vector3(0, 0, 0);
+    var eixoDeTranslacaoDaLua = new THREE.Vector3(1, 0, 0);
+    moon.rotateAroundPoint(pontoDeTranslacaoDaLua, -1.33, eixoDeTranslacaoDaLua,false);
 
 }
 
